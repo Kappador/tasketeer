@@ -1,0 +1,16 @@
+template:
+  id: "example"
+  requests:
+    - id: "req_first"
+      method: "post"
+      url: "https://gql.twitch.tv/gql"
+      options:
+        headers:
+          - key: "content-type"
+            value: "application/json"
+          - key: "client-id"
+            value: "kimne78kx3ncx6brgo4mv6wki5h1ko"
+      body:
+        type: "text"
+        data: '[{"operationName": "GetDisplayName","variables": {"login": "alveussanctuary"},"extensions": {"persistedQuery": {"version": 1,"sha256Hash": "ba351b3d3018c3779fcaa398507e41579ae6cf12ad123a04f090943c21dedb8a"}}}]'
+# Add variable replacement for url, headers, method etc. and add proxy support

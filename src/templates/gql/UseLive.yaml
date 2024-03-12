@@ -1,0 +1,15 @@
+template:
+  id: "uselive"
+  requests:
+    - id: "req_1"
+      method: "post"
+      url: "https://gql.twitch.tv/gql"
+      options:
+        headers:
+          - key: "content-type"
+            value: "application/json"
+          - key: "client-id"
+            value: "kimne78kx3ncx6brgo4mv6wki5h1ko"
+      body:
+        type: "text"
+        data: '[{"operationName": "UseLive","variables": {"channelLogin": "{{init.login}}"},"extensions": {"persistedQuery": {"version": 1,"sha256Hash":"639d5f11bfb8bf3053b424d9ef650d04c4ebb7d94711d644afb08fe9a0fad5d9"}}}]'

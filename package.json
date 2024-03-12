@@ -1,0 +1,26 @@
+{
+  "name": "tasketeer",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@types/js-yaml": "^4.0.9",
+    "@types/needle": "^3.3.0"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "https-proxy-agent": "^7.0.4",
+    "js-yaml": "^4.1.0",
+    "kappa-helper": "^1.0.2",
+    "needle": "^3.3.1"
+  }
+}
