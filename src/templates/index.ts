@@ -16,7 +16,7 @@ export default class {
   }
 
   parseTemplate(template: string) {
-    return new Promise(async (resolve) => {
+    return new Promise(async (resolve, reject) => {
       const file = Bun.file(`src/templates/${template}.yaml`);
       let returnableTemplate = {} as Template;
 
@@ -25,6 +25,28 @@ export default class {
       if (doc && doc.template) {
         returnableTemplate.id = doc.template.id;
         returnableTemplate.requests = new Map();
+
+        try {
+          for (let variable of doc.template.variables) {
+            const { key, type, optional = false } = variable;
+
+            const provided = this.init[key];
+
+            if (provided === undefined) {
+              if (optional) {
+                this.init[key] = "";
+                continue;
+              }
+              throw new Error(`Missing variable ${key}`);
+            }
+
+            if (typeof provided !== type) {
+              throw new Error(`Invalid type for variable ${key}`);
+            }
+          }
+        } catch (error) {
+          reject(error);
+        }
 
         doc.template.requests.forEach((request: any) => {
           let headers: any = {};
@@ -48,7 +70,7 @@ export default class {
       }
 
       this.template = returnableTemplate;
-      resolve(true)
+      resolve(true);
     });
   }
 
@@ -103,13 +125,9 @@ export default class {
       const responses = new Map<string, ResponseData>();
 
       for (let [key, request] of this.template.requests) {
-        console.log("sending " + key);
         try {
           let result;
-          if (
-            request.options.method === "get" ||
-            request.options.method === "head"
-          ) {
+          if (request.method === "get" || request.method === "head") {
             result = await needle(request.method, request.url, request.options);
           } else {
             let body = request.body;
@@ -119,6 +137,46 @@ export default class {
                 request.body.data = place.result;
                 place = this.replaceVariables(responses, request.body.data);
               }
+            }
+
+            if (request.url) {
+              let place = this.replaceVariables(responses, request.url);
+              while (place.found) {
+                request.url = place.result;
+                place = this.replaceVariables(responses, request.url);
+              }
+            }
+
+            if (request.options.headers) {
+              let oldToNew: any = {};
+              for (let key of Object.keys(request.options.headers)) {
+                let copy = key;
+                let place = this.replaceVariables(responses, key);
+                while (place.found) {
+                  key = place.result;
+                  place = this.replaceVariables(responses, key);
+                }
+                oldToNew[copy] = key;
+              }
+
+              let newHeaders: any = {};
+
+              for (let key of Object.keys(oldToNew)) {
+                let newKey = oldToNew[key];
+                let value = request.options.headers[key];
+
+                if (value === undefined) continue;
+                value = value.toString();
+
+                let place = this.replaceVariables(responses, value);
+                while (place.found) {
+                  value = place.result;
+                  place = this.replaceVariables(responses, value);
+                }
+                newHeaders[newKey] = value;
+              }
+
+              request.options.headers = newHeaders;
             }
 
             result = await needle(
@@ -144,8 +202,17 @@ export default class {
           } as ResponseData;
 
           responses.set(key, data);
-
-        } catch (error) {}
+        } catch (error) {
+          responses.set(key, {
+            statusCode: 0,
+            body: error,
+            cookies: [],
+            headers: {},
+            url: "",
+            timestamp: Date.now(),
+            request,
+          } as ResponseData);
+        }
       }
 
       resolve(responses);

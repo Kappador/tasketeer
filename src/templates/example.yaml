@@ -1,5 +1,9 @@
 template:
   id: "example"
+  variables:
+    - key: "hello"
+      type: "string"
+      optional: true # default is false
   requests:
     - id: "req_first"
       method: "post"
@@ -13,4 +17,4 @@ template:
       body:
         type: "text"
         data: '[{"operationName": "GetDisplayName","variables": {"login": "alveussanctuary"},"extensions": {"persistedQuery": {"version": 1,"sha256Hash": "ba351b3d3018c3779fcaa398507e41579ae6cf12ad123a04f090943c21dedb8a"}}}]'
-# Add variable replacement for url, headers, method etc. and add proxy support
+# Add proxy support

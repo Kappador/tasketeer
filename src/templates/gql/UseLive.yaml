@@ -1,5 +1,8 @@
 template:
   id: "uselive"
+  variables:
+    - key: "login"
+      type: "string"
   requests:
     - id: "req_1"
       method: "post"
