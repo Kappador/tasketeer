@@ -28,7 +28,7 @@ export default class {
 
         try {
           for (let variable of doc.template.variables) {
-            const { key, type, optional = false } = variable;
+            const { key, type = "any", optional = false } = variable;
 
             const provided = this.init[key];
 
@@ -40,7 +40,7 @@ export default class {
               throw new Error(`Missing variable ${key}`);
             }
 
-            if (typeof provided !== type) {
+            if (type != "any" && typeof provided !== type) {
               throw new Error(`Invalid type for variable ${key}`);
             }
           }
