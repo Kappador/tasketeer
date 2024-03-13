@@ -11,6 +11,27 @@ export default class {
     this.init = data;
   }
 
+  static getTemplates() {
+    const router = new Bun.FileSystemRouter({
+      style: "nextjs",
+      dir: "./src/templates/",
+      fileExtensions: [".yaml"],
+    });
+
+    const routes = router.routes;
+    const returnable = {} as { [key: string]: string };
+
+    for (let route of Object.keys(routes)) {
+      const parsedRoute = route.split(/\/(.*)/s)[1];
+      const path =
+        "/src/templates/" + routes[route].split("/src/templates/")[1];
+
+      returnable[parsedRoute] = path;
+    }
+
+    return returnable;
+  }
+
   setInitData(data: InitData) {
     this.init = data;
   }

@@ -1,8 +1,11 @@
 import Server from "./api";
 import Tasks from "./tasks";
+import Templates from "./templates";
 
-const tasks = new Tasks(16);
 const server = new Server(3000);
+const tasks = new Tasks(16);
+
+server.loadRoutes();
 
 server.add("/tasks/add", {
   post: (req) => {
@@ -82,6 +85,23 @@ server.add("/tasks/get", {
           )
         );
       }
+    });
+  },
+});
+
+server.add("/templates", {
+  get: () => {
+    return new Promise(async (resolve) => {
+      const templates = Templates.getTemplates();
+
+      resolve(
+        new Response(JSON.stringify({ message: "Templates found", templates }), {
+          status: 200,
+          headers: {
+            "Content-Type": "application/json",
+          },
+        })
+      );
     });
   },
 });

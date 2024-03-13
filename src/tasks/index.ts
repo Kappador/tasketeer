@@ -110,15 +110,12 @@ export default class {
     return task;
   }
 
-  /**
-   * Handles:
-   * - Worker timeout
-   * - Worker not found
-   * - Old task removal
-   */
   timeoutTask(task: Task) {
     setTimeout(() => {
+      // self explanatory right?
       task.timeoutRetries++;
+
+      // Removed old tasks
       if (
         task.status === "finished" ||
         task.status === "error"
@@ -141,6 +138,7 @@ export default class {
         task.status === "pending"
       ) {
         if (task.worker) {
+          // if the last status update is older than the timeout
           if (task.lastStatusUpdate.getTime() + task.timeout < Date.now()) {
             task.status = TaskStatus.ERROR;
             task.message = "Worker timeout";

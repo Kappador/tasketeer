@@ -87,20 +87,28 @@ export default class {
     this.routes.set(path, { methods });
   }
 
-  async loadRoutes(dir: string = "./src/api/routes") {
+  async loadRoutes() {
+    const dir = "./src/api/routes";
     const router = new Bun.FileSystemRouter({
       style: "nextjs",
       dir,
     });
 
     const routes = router.routes;
+    // if anyone has a suggestion please let me know...
+    const parsedDir = dir.split(/\.(.*)/s)[1];
 
     for (const route of Object.values(routes)) {
       const methods = (await import(route)).default;
-      const apiPath = route.split("api/routes")[1].split(".")[0];
+      const apiPath = route.split(parsedDir)[1].split(".")[0];
+
+      const regex = /\/index(.*)/s;
       for (const method in methods) {
-        if (apiPath === "/index") this.add("/", { [method]: methods[method] });
-        else this.add(apiPath, { [method]: methods[method] });
+        if (regex.test(apiPath)) {
+          this.add(apiPath.split("index")[0], { [method]: methods[method] });
+          this.add(apiPath.split("/index")[0], { [method]: methods[method] });
+        }
+        this.add(apiPath, { [method]: methods[method] });
       }
     }
   }
