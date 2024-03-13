@@ -1,10 +1,89 @@
-import Template from "./templates";
+import Server from "./api";
+import Tasks from "./tasks";
 
-const temp = new Template({
-  login:"admin",
+const tasks = new Tasks(16);
+const server = new Server(3000);
+
+server.add("/tasks/add", {
+  post: (req) => {
+    return new Promise(async (resolve) => {
+      try {
+        const body: any = await req.json();
+
+        const id = await tasks.addTask(body);
+
+        resolve(
+          new Response(JSON.stringify({ message: "Task added", id }), {
+            status: 200,
+            headers: {
+              "Content-Type": "application/json",
+            },
+          })
+        );
+      } catch (error) {
+        resolve(
+          new Response(
+            JSON.stringify({
+              error: "Internal server error",
+            }),
+            {
+              status: 500,
+              headers: {
+                "Content-Type": "application/json",
+              },
+            }
+          )
+        );
+      }
+    });
+  },
 });
 
-await temp.parseTemplate("gql/UseLive")
+server.add("/tasks/get", {
+  post: (req) => {
+    return new Promise(async (resolve) => {
+      try {
+        const body: any = await req.json();
 
-const reses = await temp.executeFlow();
-console.log(reses.get("req_1")?.body[0].data)
+        const id = body.id;
+        const task = tasks.getTask(id);
+
+        if (!task) {
+          return resolve(
+            new Response(JSON.stringify({ error: "Task not found" }), {
+              status: 404,
+              headers: {
+                "Content-Type": "application/json",
+              },
+            })
+          );
+        }
+
+        resolve(
+          new Response(JSON.stringify({ message: "Task found", task }), {
+            status: 200,
+            headers: {
+              "Content-Type": "application/json",
+            },
+          })
+        );
+      } catch (error) {
+        resolve(
+          new Response(
+            JSON.stringify({
+              error: "Internal server error",
+            }),
+            {
+              status: 500,
+              headers: {
+                "Content-Type": "application/json",
+              },
+            }
+          )
+        );
+      }
+    });
+  },
+});
+
+server.start();

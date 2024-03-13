@@ -81,7 +81,7 @@ export default class {
 
   addTask(data: TaskInputData) {
     const id = randomString(8);
-
+    
     const task = {
       id,
       status: TaskStatus.PENDING,
@@ -91,7 +91,7 @@ export default class {
       lastStatusUpdate: new Date(),
       timeout: data.timeout,
       timeoutRetries: data.timeoutRetries,
-    };
+    } as Task;
 
     this.tasks.set(id, task);
     this.timeoutTask(task);

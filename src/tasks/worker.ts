@@ -7,7 +7,7 @@ self.onmessage = async (event: MessageEvent) => {
 
   // do stuff in the future
   // using the templating engine
-  
+
   postMessage(
     JSON.stringify({
       id: id,

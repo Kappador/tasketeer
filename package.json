@@ -18,6 +18,7 @@
     "typescript": "^5.0.0"
   },
   "dependencies": {
+    "@types/node": "^20.11.26",
     "https-proxy-agent": "^7.0.4",
     "js-yaml": "^4.1.0",
     "kappa-helper": "^1.0.2",
