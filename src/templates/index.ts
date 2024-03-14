@@ -48,21 +48,23 @@ export default class {
         returnableTemplate.requests = new Map();
 
         try {
-          for (let variable of doc.template.variables) {
-            const { key, type = "any", optional = false } = variable;
+          if (doc.template.variables) {
+            for (let variable of doc.template.variables) {
+              const { key, type = "any", optional = false } = variable;
 
-            const provided = this.init[key];
+              const provided = this.init[key];
 
-            if (provided === undefined) {
-              if (optional) {
-                this.init[key] = "";
-                continue;
+              if (provided === undefined) {
+                if (optional) {
+                  this.init[key] = "";
+                  continue;
+                }
+                throw new Error(`Missing variable ${key}`);
               }
-              throw new Error(`Missing variable ${key}`);
-            }
 
-            if (type != "any" && typeof provided !== type) {
-              throw new Error(`Invalid type for variable ${key}`);
+              if (type != "any" && typeof provided !== type) {
+                throw new Error(`Invalid type for variable ${key}`);
+              }
             }
           }
         } catch (error) {
@@ -70,6 +72,16 @@ export default class {
         }
 
         doc.template.requests.forEach((request: any) => {
+          let loop = 1;
+
+          if (request.loop) {
+            loop = request.loop;
+          }
+
+          if (loop < 1) {
+            loop = 1;
+          }
+
           let headers: any = {};
           if (request.options.headers) {
             for (let head of request.options.headers) {
@@ -77,16 +89,33 @@ export default class {
             }
           }
 
-          returnableTemplate.requests.set(request.id, {
-            method: request.method,
-            url: request.url,
-            options: {
-              ...request.options,
-              json: true,
-              headers,
-            },
-            body: request.body,
-          });
+          if (loop === 1) {
+            returnableTemplate.requests.set(request.id, {
+              method: request.method,
+              url: request.url,
+              options: {
+                ...request.options,
+                json: true,
+                headers,
+              },
+              body: request.body,
+            });
+          }
+
+          if (loop > 1) {
+            for (let i = 0; i < loop; i++) {
+              returnableTemplate.requests.set(`${request.id}-${i+1}`, {
+                method: request.method,
+                url: request.url,
+                options: {
+                  ...request.options,
+                  json: true,
+                  headers,
+                },
+                body: request.body,
+              });
+            }
+          }
         });
       }
 

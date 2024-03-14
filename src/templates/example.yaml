@@ -6,6 +6,7 @@ template:
       optional: true # default is false
   requests:
     - id: "req_first"
+      loop: 10 # default is 1
       method: "post"
       url: "https://gql.twitch.tv/gql"
       options:
